@@ -6,33 +6,15 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"os/exec"
 	"os/signal"
 	"syscall"
 	"time"
 
-	"github.com/julienp/vpn/status"
+	"github.com/julienp/vpn/controller"
 )
 
-type expressVPN struct {
-	command   string
-	extraArgs []string
-	status    status.VPNStatus
-}
-
-func (e *expressVPN) RefreshStatus() error {
-	args := append(e.extraArgs, "status")
-	cmd := exec.Command(e.command, args...)
-	stdoutStderr, err := cmd.CombinedOutput()
-	if err != nil {
-		return err
-	}
-	e.status = status.ParseStatus(string(stdoutStderr))
-	return nil
-}
-
 type server struct {
-	vpn    *expressVPN
+	vpn    *controller.Controller
 	router *http.ServeMux
 }
 
@@ -47,17 +29,14 @@ func (s *server) handleStatus() http.HandlerFunc {
 			w.WriteHeader(502)
 		} else {
 			w.WriteHeader(200)
-			fmt.Fprintf(w, s.vpn.status.String())
+			fmt.Fprintf(w, s.vpn.Status.String())
 		}
 	}
 }
 
 func newServer() *server {
 	srv := &server{
-		vpn: &expressVPN{
-			command:   "sh",
-			extraArgs: []string{"-c", "sleep 2 && echo 'Connected to lala'"},
-		},
+		vpn:    controller.NewController(),
 		router: http.NewServeMux(),
 	}
 	srv.router.HandleFunc("/status", srv.handleStatus())
