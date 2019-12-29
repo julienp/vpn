@@ -1,6 +1,8 @@
 package status
 
-import "strings"
+import (
+	"strings"
+)
 
 type VPNStatus int
 
@@ -33,4 +35,30 @@ func ParseStatus(output string) VPNStatus {
 		return Connecting
 	}
 	return Unknown
+}
+
+type Location struct {
+	Alias       string
+	Country     string
+	Description string
+}
+
+const NEW_VERSION_INDICATOR = "A new version is available"
+
+func ParseLocations(output string) []Location {
+	skip := 2
+	if strings.HasPrefix(output, NEW_VERSION_INDICATOR) {
+		skip = 3
+	}
+	lines := strings.Split(output, "\n")
+	locations := []Location{}
+	for _, line := range lines[skip:] {
+		fields := strings.Fields(line)
+		if len(fields) == 0 {
+			break
+		}
+		loc := Location{Alias: fields[0]}
+		locations = append(locations, loc)
+	}
+	return locations
 }

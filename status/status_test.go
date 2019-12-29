@@ -2,6 +2,8 @@ package status
 
 import (
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestParseStatus(t *testing.T) {
@@ -37,5 +39,25 @@ func TestParseStatus(t *testing.T) {
 		if test.expected != got {
 			t.Errorf("Expected %q, got %q", test.expected, got)
 		}
+	}
+}
+
+func TestParseLocations(t *testing.T) {
+	cases := []struct {
+		output   string
+		expected []Location
+	}{
+		{
+			`ALIAS COUNTRY                     LOCATION                       RECOMMENDED
+	----- ---------------             ------------------------------ -----------
+	be    Belgium (BE)                Belgium                        Y`,
+			[]Location{
+				Location{Alias: "be"},
+			},
+		},
+	}
+	for _, test := range cases {
+		got := ParseLocations(test.output)
+		assert.Equal(t, test.expected, got)
 	}
 }
