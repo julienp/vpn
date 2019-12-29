@@ -7,5 +7,5 @@ a router. This API should allow an app to control the VPN connection, chosing
 countries, etc.
 
 ## Build
- 
-env GOOS=linux GOARCH=arm GOARM=5 go build -o pivpn main.go
+
+env GOOS=linux GOARCH=arm GOARM=5 go build -o pivpn cmd/main.go
