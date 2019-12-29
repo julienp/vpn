@@ -4,14 +4,14 @@ import (
 	"fmt"
 	"os/exec"
 
-	"github.com/julienp/vpn/status"
+	"github.com/julienp/vpn/model"
 )
 
 type Controller struct {
 	command   string
 	extraArgs []string
-	Status    status.VPNStatus
-	Location  *status.Location
+	Status    model.VPNStatus
+	Location  *model.Location
 }
 
 func (e *Controller) RefreshStatus() error {
@@ -21,18 +21,18 @@ func (e *Controller) RefreshStatus() error {
 	if err != nil {
 		return err
 	}
-	e.Status = status.ParseStatus(string(stdoutStderr))
+	e.Status = model.ParseStatus(string(stdoutStderr))
 	return nil
 }
 
-func (e *Controller) ListLocations() ([]status.Location, error) {
+func (e *Controller) ListLocations() ([]model.Location, error) {
 	args := append(e.extraArgs, "list", "all")
 	cmd := exec.Command(e.command, args...)
 	stdoutStderr, err := cmd.CombinedOutput()
 	if err != nil {
-		return []status.Location{}, err
+		return []model.Location{}, err
 	}
-	locations := status.ParseLocations(string(stdoutStderr))
+	locations := model.ParseLocations(string(stdoutStderr))
 	return locations, nil
 }
 
